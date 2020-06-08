@@ -19,12 +19,27 @@ namespace HuynhNhatKhang__Bigschool.Controllers
         }
         // GET: Courses
         [Authorize]
-        [HttpPost]     
+        public ActionResult Create()
+        {
+            var viewModel = new CourseViewModel
+            {
+                Categories = _dbContext.Categories.ToList()
+            };
+            return View(viewModel);
+        }
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]     
         public ActionResult Create(CourseViewModel viewModel)
         {
+            if (!ModelState.IsValid)
+            {
+                viewModel.Categories = _dbContext.Categories.ToList();
+                return View("Create", viewModel);
+            }
             var course = new Course
             {
-                LectureID = User.Identity.GetUserId(),
+                LecturerID = User.Identity.GetUserId(),
                 Datetime = viewModel.GetDateTime(),
                 CategoryId = viewModel.Category,
                 Place = viewModel.Place
@@ -32,7 +47,7 @@ namespace HuynhNhatKhang__Bigschool.Controllers
             _dbContext.Courses.Add(course);
             _dbContext.SaveChanges();
 
-            return View("Index", "Home");
+            return RedirectToAction("Index", "Home");
         }
     }
 }
